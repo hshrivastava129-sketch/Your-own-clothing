@@ -1,0 +1,44 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  useNavigate,
+} from 'react-router-dom';
+const API_URL = 'http://localhost:5000';
+function Navbar({ wishlistCount, cartCount }) {
+  return (
+    <nav style={{ padding: 20, borderBottom: '1px solid #ccc' }}>
+      <Link to="/" style={{ marginRight: 20 }}>Your Own Clothing</Link>
+      <Link to="/wishlist" style={{ marginRight: 20 }}>Wishlist ({wishlistCount})</Link>
+      <Link to="/cart">Cart ({cartCount})</Link>
+    </nav>
+  );
+}
+function ProductList({ addToWishlist, addToCart }) {
+  const [products, setProducts] = useState([]);
+  const [search, setSearch] = useState('');
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+  async function fetchProducts() {
+    const res = await axios.get(`${API_URL}/products`);
+    setProducts(res.data);
+  }
+  async function handleSearch(e) {
+    e.preventDefault();
+    if (!search.trim()) {
+      fetchProducts();
+      return;
+    }
+    const res = await axios.get(`${API_URL}/products/search?q=${search}`);
+    setProducts(res.data);
+  }
+  return (
+    <div style={{ padding: 20 }}>
+      <form onSubmit={handleSearch} style={{ marginBottom: 20 }}>
+        <input
+          type="text"
+          placeholder="Search products..."
